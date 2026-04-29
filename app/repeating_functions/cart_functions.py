@@ -17,7 +17,7 @@ def get_selected_cart_items(db: Session, user_id: int, cart_item_ids: list[int])
     if not cart_item_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No cart items provided")
     
-    cart_item_ids = list(set(cart_item_ids))
+    cart_item_ids = list(set(cart_item_ids)) #duplicate privension
 
     cart_items = (db.query(CartItem)
                   .join(Cart)

@@ -14,6 +14,8 @@ def create_order(db: Session, user_id: int, cart_item_id: list[int]):
     
     cart_items = get_selected_cart_items(db, user_id, cart_item_id)
 
+     
+
 
 
 
