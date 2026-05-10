@@ -6,8 +6,7 @@ from sqlalchemy import func
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from app.repeating_functions.user_functions import find_user
-from app.repeating_functions.cart_functions import get_selected_cart_items
-from app.repeating_functions.product_functions import total_price_of_products
+from app.repeating_functions.cart_functions import get_selected_cart_items, inactive_cart_items
 
 
 def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
@@ -24,7 +23,6 @@ def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
         
         total_price += item.product.price * item.quantity
 
-    
     try:
         new_order = Order(user_id=user_id, total_price=total_price)  
     
@@ -49,7 +47,11 @@ def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="order already exist")
+        
+    inactive_cart_items(db, user_id, cart_item_ids)
 
+
+    
     
 
 
