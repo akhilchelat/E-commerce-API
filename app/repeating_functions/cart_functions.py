@@ -36,7 +36,7 @@ def get_selected_cart_items(db: Session, user_id: int, cart_item_ids: list[int])
 
 def deactivate_cart_items(cart_item_ids: list[int]):
 
-    for cart_id in cart_item_ids:
-        cart_id.is_active = False
+    for cart_item in cart_item_ids:
+        cart_item.is_active = False
 
     
