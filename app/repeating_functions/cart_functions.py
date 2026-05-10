@@ -34,37 +34,9 @@ def get_selected_cart_items(db: Session, user_id: int, cart_item_ids: list[int])
 
     return cart_items
 
-def inactive_cart_items(db: Session, user_id: int, cart_item_ids: list[int]):
+def deactivate_cart_items(cart_item_ids: list[int]):
 
-    if not cart_item_ids:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No cart items provided")
+    for cart_id in cart_item_ids:
+        cart_id.is_active = False
 
-    cart_item_ids = list(set(cart_item_ids))
-
-    cart_items = (db.query(CartItem).join(Cart)
-                  .filter(CartItem.id.in_(cart_item_ids),
-                          Cart.user_id == user_id,
-                          CartItem.is_active.is_(True),
-                          Cart.is_active.is_(True)).all())
     
-    if not cart_items:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart items not found")
-
-    if len(cart_items) != len(cart_item_ids):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Some cart items are invalid")
-    
-    for cart_item in cart_items:
-        cart_item.is_active = False
-
-    return {"message": "cart items cleared successfully"}    
-
-
-
-
-
-
-      
-
-
-
-
