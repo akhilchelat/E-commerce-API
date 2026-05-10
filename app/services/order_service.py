@@ -2,11 +2,11 @@ from app.models.order import Order
 from app.models.orderitem import OrderItem
 from app.models.cartitem import CartItem
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from app.repeating_functions.user_functions import find_user
 from app.repeating_functions.cart_functions import get_selected_cart_items, deactivate_cart_items
+from app.repeating_functions.order_functions import get_order
 
 
 def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
@@ -39,7 +39,7 @@ def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
 
             item.product.stock -= item.quantity
 
-        deactivate_cart_items(cart_item_ids)    
+        deactivate_cart_items(cart_items)    
 
         db.commit()
         db.refresh(new_order)
@@ -50,12 +50,47 @@ def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="order already exist")
     
+    except HTTPException:
+        db.rollback()
+        raise
     
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="something went wrong")
+
+
+def get_order_by_id(db: Session, user_id: int, order_id: int):
+
+    order = get_order(db, user_id, order_id)
+
+    return order
+
+def get_user_orders():    
+
+    
+
+
+
 
                   
-
-
-    
+# {
+#   "id": 1,
+#   "user_id": 5,
+#   "total_price": 2500,
+#   "status": "PENDING",
+#   "items": [
+#     {
+#       "product_id": 2,
+#       "quantity": 1,
+#       "price": 1500
+#     },
+#     {
+#       "product_id": 4,
+#       "quantity": 2,
+#       "price": 500
+#     }
+#   ]
+# }
     
 
 

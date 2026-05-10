@@ -34,9 +34,9 @@ def get_selected_cart_items(db: Session, user_id: int, cart_item_ids: list[int])
 
     return cart_items
 
-def deactivate_cart_items(cart_item_ids: list[int]):
+def deactivate_cart_items(cart_items: list[int]):
 
-    for cart_item in cart_item_ids:
+    for cart_item in cart_items:
         cart_item.is_active = False
 
     
