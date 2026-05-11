@@ -65,7 +65,19 @@ def get_order_by_id(db: Session, user_id: int, order_id: int):
 
     return order
 
-def get_user_orders():    
+def get_user_orders(db: Session, user_id: int):  
+
+    find_user(db, user_id)
+
+    orders = (db.query(Order).filter(Order.user_id == user_id,
+                                     Order.is_active.is_(True))
+                                     .order_by(Order.created_at.desc())
+                                     .all())
+
+    if not orders:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No order found")
+
+    return orders  
 
     
 
