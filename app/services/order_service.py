@@ -1,4 +1,4 @@
-from app.models.order import Order
+from app.models.order import Order, OrderStatus
 from app.models.orderitem import OrderItem
 from app.models.cartitem import CartItem
 from sqlalchemy.orm import Session
@@ -6,8 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from app.repeating_functions.user_functions import find_user
 from app.repeating_functions.cart_functions import get_selected_cart_items, deactivate_cart_items
-from app.repeating_functions.order_functions import get_order
-
+from app.repeating_functions.order_functions import get_order, get_orderitems_from_order
 
 def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
 
@@ -79,7 +78,40 @@ def get_user_orders(db: Session, user_id: int):
 
     return orders  
 
+
+def cancel_order(db: Session, user_id: int, order_id: int):
+
+    find_user(db, user_id)
+
+    order_item = get_orderitems_from_order(db, user_id, order_id)
+
+    order = get_order(db, user_id, order_id)
+
+    if order.status != OrderStatus.PENDING:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="only pending orders can be cancelled")
     
+    order.is_active = False
+    order.status = OrderStatus.CANCELLED    
+
+    for item in order_item:
+        item.is_active = False
+        item.product.stock += item.quantity
+    
+    try:
+        db.commit()
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="something went wrong")
+
+    except HTTPException:
+        db.rollback()
+        raise
+    
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="something went wrong")
+
 
 
 

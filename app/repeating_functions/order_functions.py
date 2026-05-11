@@ -23,3 +23,15 @@ def get_order(db: Session, user_id: int, order_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="no order exist")
 
     return order 
+
+def get_orderitems_from_order(db: Session, user_id: int, order_id: int):
+
+    find_user(db, user_id)
+
+    order_items = (db.query(OrderItem).filter(OrderItem.order_id == order_id,
+                                              OrderItem.is_active.is_(True)).all())
+    
+    if not order_items:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No item found")
+    
+    return order_items
