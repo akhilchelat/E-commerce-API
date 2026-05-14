@@ -1,4 +1,4 @@
-from app.models.order import Order
+from app.models.order import Order, OrderStatus
 from app.models.orderitem import OrderItem
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -35,3 +35,35 @@ def get_orderitems_from_order(db: Session, user_id: int, order_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No item found")
     
     return order_items
+
+def get_all_orders_ids(db: Session, user_id: int):
+
+    find_user(db, user_id)
+
+    orders = (db.query(Order).filter(Order.is_active.is_(True),
+                                     Order.user_id == user_id,
+                                     Order.status == OrderStatus.PENDING).all())
+    
+    if not orders:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="no order found")
+    
+    order_ids = []
+
+    for order in orders:
+        order_ids.append(order.id)
+
+    return order_ids    
+ 
+
+def get_ordeitems_of_all_orders(db: Session, user_id: int, order_ids: list[int]):
+
+    find_user(db, user_id)
+
+    order_items = (db.query(OrderItem).filter(OrderItem.order_id.in_(order_ids),
+                                              OrderItem.is_active.is_(True)).all())
+    
+    if not order_items:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No item found")
+    
+    return order_items
+

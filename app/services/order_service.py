@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from app.repeating_functions.user_functions import find_user
 from app.repeating_functions.cart_functions import get_selected_cart_items, deactivate_cart_items
-from app.repeating_functions.order_functions import get_order, get_orderitems_from_order
+from app.repeating_functions.order_functions import get_order, get_orderitems_from_order, get_all_orders_ids, get_ordeitems_of_all_orders
 
 def create_order(db: Session, user_id: int, cart_item_ids: list[int]):
 
@@ -111,31 +111,21 @@ def cancel_order(db: Session, user_id: int, order_id: int):
     except Exception:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="something went wrong")
-
-
-
-
-
-                  
-# {
-#   "id": 1,
-#   "user_id": 5,
-#   "total_price": 2500,
-#   "status": "PENDING",
-#   "items": [
-#     {
-#       "product_id": 2,
-#       "quantity": 1,
-#       "price": 1500
-#     },
-#     {
-#       "product_id": 4,
-#       "quantity": 2,
-#       "price": 500
-#     }
-#   ]
-# }
     
+    return {"message": "order cancelled successfully"}
+
+
+def cancel_all_orders(db: Session, user_id: int, order_id: list[int]):
+
+    find_user(db, user_id)
+
+    orders = get_all_orders_ids(db, user_id)
+
+    order_items = get_ordeitems_of_all_orders(db, user_id, orders)
+
+    # create a helper function to deactivate all the orders and then decativate the order items and ad.commit
+
+          
 
 
 
