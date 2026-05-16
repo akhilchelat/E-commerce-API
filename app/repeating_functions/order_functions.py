@@ -67,3 +67,14 @@ def get_ordeitems_of_all_orders(db: Session, user_id: int, order_ids: list[int])
     
     return order_items
 
+def deactivate_all_orders(db: Session, order_ids: list[int]):
+
+    orders = (db.query(Order).filter(Order.id.in_(order_ids),
+                                     Order.is_active.is_(True)).all())
+    
+    if not orders:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="no order found")
+    
+    for order in orders:
+        order.is_active = False 
+        order.status = OrderStatus.CANCELLED
