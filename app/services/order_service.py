@@ -143,16 +143,9 @@ def cancel_all_orders(db: Session, user_id: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="something went wrong")
     
     return {"message": "orders cancelled successfully"}
-    
-    
 
-    # create a function to deactivate all the orderitems and retore stock
-
-
-
- 
-     
-
+def confirm_order(db: Session, order_id: int):
+        
 
 
 

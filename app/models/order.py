@@ -22,5 +22,6 @@ class Order(Base):
 
     user = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order")
+    order_status_history = relationship("OrderStatusHistory", back_populates="order")
     
   
